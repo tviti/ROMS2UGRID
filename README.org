@@ -1,0 +1,10 @@
+#+title: ROMS2UGRID
+#+author: Taylor Viti
+#+email: tviti@hawaii.edu
+
+Convert grid and history files created by the [[https://www.myroms.org][/Regional Ocean Modeling System/]]
+(ROMS), to a [[https://ugrid-conventions.github.io/][UGRID]] compliant netCDF file. The goal is to be able to post-process
+ROMS outputs into a file format that can be loaded directly into [[https://qgis.org][QGIS]] as a mesh
+layer.
+
+=WIP=
