@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import numpy as np
 import xarray as xr
@@ -24,7 +26,6 @@ vars = ["h"]
 if args.vars is not None:
     vars = vars + args.vars
 
-# roms = xr.open_dataset(args.roms)
 roms = xr.open_dataset(args.roms)
 
 ##############################
