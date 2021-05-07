@@ -18,7 +18,7 @@ description = """Convert a ROMS file to a UGRID compliant netCDF"""
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument("roms", type=str, help="input filepath")
 parser.add_argument("ugrid", type=str, help="output filepath")
-parser.add_argument("--vars", type=str, nargs="*", help="variables to process")
+parser.add_argument("--vars", type=str, nargs="*", help="variables to process (only supports RHO vars atm)")
 args = parser.parse_args()
 
 # By default, we always process the bathymetry
@@ -122,9 +122,6 @@ for v in vars:
             if "coordinates" in data_vars[v].encoding.keys():
                 data_vars[v].encoding.pop("coordinates")
 
-            data_vars[v].attrs.pop("field")
-            data_vars[v].attrs.pop("grid")
-
 
 # Construct the output dataset
 data_vars.update({"lat_rho": lat_rho,
@@ -142,7 +139,6 @@ if "ocean_time" in ugrid.dims.keys():
     ugrid = ugrid.rename({"ocean_time": "time"})
 
 ugrid.attrs["Conventions"] = "CF-1.6, UGRID-1.0"
-# ugrid.encoding.pop("coordinates")
 
 ugrid.to_netcdf(args.ugrid)
 ugrid.close()
