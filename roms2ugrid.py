@@ -21,8 +21,8 @@ parser.add_argument("ugrid", type=str, help="output filepath")
 parser.add_argument("--vars", type=str, nargs="*", help="variables to process (only supports RHO vars atm)")
 args = parser.parse_args()
 
-# By default, we always process the bathymetry
-vars = ["h"]
+# By default, we always process the bathymetry and mask
+vars = ["h", "mask_rho"]
 if args.vars is not None:
     vars = vars + args.vars
 
