@@ -11,6 +11,15 @@ def reshape_var(v, dims, newdim_name):
     v = v.drop(v.coords.keys())
     v = v.rename({"newdim": newdim_name})
 
+    # Reset files will have an extra "two" or "three" dimension, which we ignore
+    if ("two" in v.dims):
+        v = v.isel(two=0)
+        v = v.squeeze()
+
+    if ("three" in v.dims):
+        v = v.isel(three=0)
+        v = v.squeeze()
+
     return v
 
 
@@ -90,15 +99,24 @@ lat_v.attrs = {"standard_name": "latitude",
 lon_v.attrs = {"standard_name": "longitude",
                "units": "degrees_east"}
 
-# Create the UGRID mesh topology object
-mesh = xr.DataArray(np.zeros((1), dtype=np.int32), dims=["One"],
-                    attrs={"cf_role": "mesh_topology",
-                           "long_name": "Topology data of 2D mesh.",
-                           "topology_dimension": 2.0,
-                           "node_coordinates": "lon_psi lat_psi",
-                           "face_coordinates": "lon_rho lat_rho",
-                           "face_node_connectivity": "face_nodes",
-                           "face_dimension": "nFace"})
+# Create the UGRID mesh topology objects
+mesh_rho = xr.DataArray(np.zeros((1), dtype=np.int32), dims=["One"],
+                        attrs={"cf_role": "mesh_topology",
+                               "long_name": "Topology data of 2D mesh.",
+                               "topology_dimension": 2.0,
+                               "node_coordinates": "lon_psi lat_psi",
+                               "face_coordinates": "lon_rho lat_rho",
+                               "face_node_connectivity": "face_nodes",
+                               "face_dimension": "nFace"})
+
+mesh_rho = xr.DataArray(np.zeros((1), dtype=np.int32), dims=["One"],
+                        attrs={"cf_role": "mesh_topology",
+                               "long_name": "Topology data of 2D mesh.",
+                               "topology_dimension": 2.0,
+                               "node_coordinates": "lon_psi lat_psi",
+                               "face_coordinates": "lon_rho lat_rho",
+                               "face_node_connectivity": "face_nodes",
+                               "face_dimension": "nFace"})
 
 ########################################
 # Process the requested data variables #
@@ -129,7 +147,7 @@ data_vars.update({"lat_rho": lat_rho,
                   "lat_psi": lat_psi,
                   "lon_psi": lon_psi,
                   "face_nodes": face_nodes,
-                  "mesh": mesh})
+                  "mesh": mesh_rho})
 ugrid = xr.Dataset(data_vars)
 
 # If any DataArrays with a time dimension were introduced, then add the time
