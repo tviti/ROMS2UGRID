@@ -12,6 +12,7 @@ def reshape_var(v, dims, newdim_name):
     v = v.rename({"newdim": newdim_name})
 
     # Reset files will have an extra "two" or "three" dimension, which we ignore
+    # TODO: Do something more intelligent w/ these
     if ("two" in v.dims):
         v = v.isel(two=0)
         v = v.squeeze()
@@ -139,6 +140,29 @@ for v in vars:
 
             if "coordinates" in data_vars[v].encoding.keys():
                 data_vars[v].encoding.pop("coordinates")
+
+            # For vectors, setup long_name so that mdal recognizes them
+            vec_phrase = "component at RHO-points"
+            if vec_phrase in data_vars[v].long_name:
+                vec_dir = None
+                if "eastward" in data_vars[v].long_name:
+                    vec_dir = "eastward"
+                    prefix = "u component of "
+                elif "northward" in data_vars[v].long_name:
+                    vec_dir = "northward"
+                    prefix = "v component of "
+
+                # Not sure if this case is possible, but just in case...
+                if vec_dir is None:
+                    "Vector isn't an eastward/northward component! Skipping..."
+                else:
+                    basename = data_vars[v].attrs["long_name"]
+                    basename = basename.split(vec_phrase)[0]
+                    basename = basename.split(vec_dir + " ")
+                    basename = "".join(basename)
+                    newname = prefix + basename + "at RHO-points"
+
+                    data_vars[v].attrs["long_name"] = newname
 
 
 # Construct the output dataset
