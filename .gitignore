@@ -1,0 +1,7 @@
+*~
+*.ugrid
+*.nc
+data/
+.dir-locals.el
+.direnv
+.envrc
