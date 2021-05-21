@@ -164,6 +164,16 @@ for v in vars:
 
                     data_vars[v].attrs["long_name"] = newname
 
+            # Split depth-dependent vars along their depth dimension
+            if "s_rho" in data_vars[v].dims:
+                for i in range(data_vars[v].s_rho.size):
+                    v_i = "{v}_{i}".format(v=v, i=i)
+                    s_rho_i = roms.s_rho.data[i]
+                    data_vars[v_i] = data_vars[v].isel(s_rho=i)
+                    newname = data_vars[v_i].attrs["long_name"] + " (s = {0})".format(s_rho_i)
+                    data_vars[v_i].attrs["long_name"] = newname
+
+                data_vars.pop(v)  # TODO: don't even add v in the first place
 
 # Construct the output dataset
 data_vars.update({"lat_rho": lat_rho,
