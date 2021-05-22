@@ -20,6 +20,24 @@ S-levels, the 3D+time =salt= variable would be processed down to a set of
 variables =salt_[0-N]= in the output file, each of which can then be plotted in
 QGIS as a normal 2D+time variable.
 
+** Usage
+
+   #+begin_src
+usage: roms2ugrid.py [-h] [-v [VARS [VARS ...]]] [-V] roms ugrid
+
+Convert a ROMS file to a UGRID compliant netCDF
+
+positional arguments:
+  roms                  input filepath
+  ugrid                 output filepath
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v [VARS [VARS ...]], --vars [VARS [VARS ...]]
+                        variables to process (only supports RHO vars atm)
+  -V, --verbose
+   #+end_src
+
 ** Requirements
    - Python 3
    - numpy
