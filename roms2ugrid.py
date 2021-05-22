@@ -79,21 +79,21 @@ def main(args):
                         "units": "nondimensional"}
 
     # # The U and V points are considered to be the mesh edges
-    lat_u = roms.lat_u[1:-1, :].stack(nEdge=("xi_u", "eta_u"))
-    lon_u = roms.lon_u[1:-1, :].stack(nEdge=("xi_u", "eta_u"))
+    # lat_u = roms.lat_u[1:-1, :].stack(nEdge=("xi_u", "eta_u"))
+    # lon_u = roms.lon_u[1:-1, :].stack(nEdge=("xi_u", "eta_u"))
 
-    lat_u.attrs = {"standard_name": "latitude",
-                "units": "degrees_north"}
-    lon_u.attrs = {"standard_name": "longitude",
-                "units": "degrees_east"}
+    # lat_u.attrs = {"standard_name": "latitude",
+    #                "units": "degrees_north"}
+    # lon_u.attrs = {"standard_name": "longitude",
+    #                "units": "degrees_east"}
 
-    lat_v = roms.lat_v[:, 1:-1].stack(nEdge=("xi_v", "eta_v"))
-    lon_v = roms.lon_v[:, 1:-1].stack(nEdge=("xi_v", "eta_v"))
+    # lat_v = roms.lat_v[:, 1:-1].stack(nEdge=("xi_v", "eta_v"))
+    # lon_v = roms.lon_v[:, 1:-1].stack(nEdge=("xi_v", "eta_v"))
 
     # lat_v.attrs = {"standard_name": "latitude",
-    #             "units": "degrees_north"}
+    #                "units": "degrees_north"}
     # lon_v.attrs = {"standard_name": "longitude",
-    #             "units": "degrees_east"}
+    #                "units": "degrees_east"}
 
     # Create the UGRID mesh topology objects
     mesh_rho = xr.DataArray(np.zeros((1), dtype=np.int32), dims=["One"],
