@@ -25,6 +25,46 @@ def reshape_var(v, dims, newdim_name):
     return v
 
 
+def process_rho_var(v_in, face_dims):
+    """Create a UGRID compliant DataArray v_out, defined on the faces of the RHO
+mesh (with dimensions face_dims), from v_in, a DataArray defining a ROMS
+RHO-points variable
+
+    """
+    v_out = reshape_var(v_in.isel(eta_rho=v_in.eta_rho[1:-1],
+                                  xi_rho=v_in.xi_rho[1:-1]),
+                        face_dims, "nFace")
+
+    v_out.attrs["mesh"] = "mesh_rho"
+    v_out.attrs["location"] = "face"
+    v_out.attrs["coordinates"] = "lon_rho lat_rho"
+
+    # For vectors, setup long_name so that mdal recognizes them
+    vec_phrase = "component at RHO-points"
+    if vec_phrase in v_out.long_name:
+        vec_dir = None
+        if "eastward" in v_out.long_name:
+            vec_dir = "eastward"
+            prefix = "u component of "
+        elif "northward" in v_out.long_name:
+            vec_dir = "northward"
+            prefix = "v component of "
+
+        # Not sure if this case is possible, but just in case...
+        if vec_dir is None and args.verbose:
+            print("Vector isn't an eastward/northward component! Skipping...")
+        else:
+            basename = v_out.attrs["long_name"]
+            basename = basename.split(vec_phrase)[0]
+            basename = basename.split(vec_dir + " ")
+            basename = "".join(basename)
+            newname = prefix + basename + "at RHO-points"
+
+            v_out.attrs["long_name"] = newname
+
+    return v_out
+
+
 def main(args):
     # By default, we always process the bathymetry and mask
     vars = ["h", "mask_rho"]
@@ -120,37 +160,7 @@ def main(args):
                 print("Processing {0}...".format(v))
 
             if ("eta_rho" in roms[v].dims) and ("xi_rho" in roms[v].dims):  # Face var
-                data_vars[v] = reshape_var(roms[v].isel(eta_rho=roms[v].eta_rho[1:-1],
-                                                        xi_rho=roms[v].xi_rho[1:-1]),
-                                           face_dims, "nFace")
-
-                data_vars[v].attrs["mesh"] = "mesh_rho"
-                data_vars[v].attrs["location"] = "face"
-                data_vars[v].attrs["coordinates"] = "lon_rho lat_rho"
-
-                # For vectors, setup long_name so that mdal recognizes them
-                vec_phrase = "component at RHO-points"
-                if vec_phrase in data_vars[v].long_name:
-                    vec_dir = None
-                    if "eastward" in data_vars[v].long_name:
-                        vec_dir = "eastward"
-                        prefix = "u component of "
-                    elif "northward" in data_vars[v].long_name:
-                        vec_dir = "northward"
-                        prefix = "v component of "
-
-                    # Not sure if this case is possible, but just in case...
-                    if vec_dir is None:
-                        if args.verbose:
-                            print("Vector isn't an eastward/northward component! Skipping...")
-                    else:
-                        basename = data_vars[v].attrs["long_name"]
-                        basename = basename.split(vec_phrase)[0]
-                        basename = basename.split(vec_dir + " ")
-                        basename = "".join(basename)
-                        newname = prefix + basename + "at RHO-points"
-
-                        data_vars[v].attrs["long_name"] = newname
+                data_vars[v] = process_rho_var(roms[v], face_dims)
 
             if "coordinates" in data_vars[v].encoding.keys():
                 data_vars[v].encoding.pop("coordinates")
