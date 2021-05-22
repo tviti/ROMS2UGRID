@@ -25,7 +25,12 @@ def reshape_var(v, dims, newdim_name):
     return v
 
 
-def process_rho_var(v_in, face_dims):
+def is_rho_var(var):
+    """Returns True if DataArray var is a RHO-points variable"""
+    return ("eta_rho" in var.dims) and ("xi_rho" in var.dims)
+
+
+def process_rho_var(v_in, face_dims, mask_mul=False):
     """Create a UGRID compliant DataArray v_out, defined on the faces of the RHO
 mesh (with dimensions face_dims), from v_in, a DataArray defining a ROMS
 RHO-points variable
@@ -159,7 +164,7 @@ def main(args):
             if args.verbose:
                 print("Processing {0}...".format(v))
 
-            if ("eta_rho" in roms[v].dims) and ("xi_rho" in roms[v].dims):  # Face var
+            if is_rho_var(roms[v]):  # Face var
                 data_vars[v] = process_rho_var(roms[v], face_dims)
 
             if "coordinates" in data_vars[v].encoding.keys():
