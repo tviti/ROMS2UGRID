@@ -105,15 +105,6 @@ def main(args):
                                    "face_node_connectivity": "face_nodes",
                                    "face_dimension": "nFace"})
 
-    mesh_rho = xr.DataArray(np.zeros((1), dtype=np.int32), dims=["One"],
-                            attrs={"cf_role": "mesh_topology",
-                                   "long_name": "Topology data of 2D mesh.",
-                                   "topology_dimension": 2.0,
-                                   "node_coordinates": "lon_psi lat_psi",
-                                   "face_coordinates": "lon_rho lat_rho",
-                                   "face_node_connectivity": "face_nodes",
-                                   "face_dimension": "nFace"})
-
     ########################################
     # Process the requested data variables #
     ########################################
@@ -136,9 +127,6 @@ def main(args):
                 data_vars[v].attrs["mesh"] = "mesh"
                 data_vars[v].attrs["location"] = "face"
                 data_vars[v].attrs["coordinates"] = "lon_rho lat_rho"
-
-                if "coordinates" in data_vars[v].encoding.keys():
-                    data_vars[v].encoding.pop("coordinates")
 
                 # For vectors, setup long_name so that mdal recognizes them
                 vec_phrase = "component at RHO-points"
@@ -164,16 +152,19 @@ def main(args):
 
                         data_vars[v].attrs["long_name"] = newname
 
-                # Split depth-dependent vars along their depth dimension
-                if "s_rho" in data_vars[v].dims:
-                    for i in range(data_vars[v].s_rho.size):
-                        v_i = "{v}_{i}".format(v=v, i=i)
-                        s_rho_i = roms.s_rho.data[i]
-                        data_vars[v_i] = data_vars[v].isel(s_rho=i)
-                        newname = data_vars[v_i].attrs["long_name"] + " (s = {0})".format(s_rho_i)
-                        data_vars[v_i].attrs["long_name"] = newname
+            if "coordinates" in data_vars[v].encoding.keys():
+                data_vars[v].encoding.pop("coordinates")
 
-                    data_vars.pop(v)  # TODO: don't even add v in the first place
+            # Split depth-dependent vars along their depth dimension
+            if "s_rho" in data_vars[v].dims:
+                for i in range(data_vars[v].s_rho.size):
+                    v_i = "{v}_{i}".format(v=v, i=i)
+                    s_rho_i = roms.s_rho.data[i]
+                    data_vars[v_i] = data_vars[v].isel(s_rho=i)
+                    newname = data_vars[v_i].attrs["long_name"] + " (s = {0})".format(s_rho_i)
+                    data_vars[v_i].attrs["long_name"] = newname
+
+                data_vars.pop(v)  # TODO: don't even add v in the first place
 
     # Construct the output dataset
     data_vars.update({"lat_rho": lat_rho,
