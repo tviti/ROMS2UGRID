@@ -7,4 +7,20 @@ Convert grid and history files created by the [[https://www.myroms.org][/Regiona
 ROMS outputs into a file format that can be loaded directly into [[https://qgis.org][QGIS]] as a mesh
 layer.
 
-=WIP=
+At the moment, this script only supports variables defined on the
+RHO-points. Vector fields are also supported (and can be read/plotted properly
+by QGIS), but ONLY for variables defined on the RHO-points. This means that if
+you want to plot, for example, =ubar= and =vbar= as a single vector field, then
+you need to instruct ROMS (in your ROMS input file) to process/write
+=ubar_eastward= and =vbar_northward= to your history/quick/average file(s).
+
+Any depth-dependent variables that are requested, are split along their depth
+dimension into a sequence of "flat" variables. For example, for a model with N
+S-levels, the 3D+time =salt= variable would be processed down to a set of
+variables =salt_[0-N]= in the output file, each of which can then be plotted in
+QGIS as a normal 2D+time variable.
+
+** Requirements
+   - Python 3
+   - numpy
+   - xarray
