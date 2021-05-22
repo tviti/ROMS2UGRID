@@ -124,7 +124,7 @@ def main(args):
                                                         xi_rho=roms[v].xi_rho[1:-1]),
                                            face_dims, "nFace")
 
-                data_vars[v].attrs["mesh"] = "mesh"
+                data_vars[v].attrs["mesh"] = "mesh_rho"
                 data_vars[v].attrs["location"] = "face"
                 data_vars[v].attrs["coordinates"] = "lon_rho lat_rho"
 
@@ -172,7 +172,7 @@ def main(args):
                       "lat_psi": lat_psi,
                       "lon_psi": lon_psi,
                       "face_nodes": face_nodes,
-                      "mesh": mesh_rho})
+                      "mesh_rho": mesh_rho})
     ugrid = xr.Dataset(data_vars)
 
     # If any DataArrays with a time dimension were introduced, then add the time
