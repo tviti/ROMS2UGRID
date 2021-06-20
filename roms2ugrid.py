@@ -165,21 +165,25 @@ def main(args):
                 print("Processing {0}...".format(v))
 
             if is_rho_var(roms[v]):  # Face var
-                data_vars[v] = process_rho_var(roms[v], face_dims)
+                v_out = v.lower()
+                data_vars[v_out] = process_rho_var(roms[v], face_dims)
 
-            if "coordinates" in data_vars[v].encoding.keys():
-                data_vars[v].encoding.pop("coordinates")
+                # the "direction" keyword in long_name throws off MDAL
+                data_vars[v_out].attrs["long_name"] = data_vars[v_out].attrs["long_name"].replace("direction", "dir.")
 
-            # Split depth-dependent vars along their depth dimension
-            if "s_rho" in data_vars[v].dims:
-                for i in range(data_vars[v].s_rho.size):
-                    v_i = "{v}_{i}".format(v=v, i=i)
-                    s_rho_i = roms.s_rho.data[i]
-                    data_vars[v_i] = data_vars[v].isel(s_rho=i)
-                    newname = data_vars[v_i].attrs["long_name"] + " (s = {0})".format(s_rho_i)
-                    data_vars[v_i].attrs["long_name"] = newname
+                if "coordinates" in data_vars[v_out].encoding.keys():
+                    data_vars[v_out].encoding.pop("coordinates")
 
-                data_vars.pop(v)  # TODO: don't even add v in the first place
+                # Split depth-dependent vars along their depth dimension
+                if "s_rho" in data_vars[v_out].dims:
+                    for i in range(data_vars[v_out].s_rho.size):
+                        v_i = "{v}_{i}".format(v=v_out, i=i)
+                        s_rho_i = roms.s_rho.data[i]
+                        data_vars[v_i] = data_vars[v_out].isel(s_rho=i)
+                        newname = data_vars[v_i].attrs["long_name"] + " (s = {0})".format(s_rho_i)
+                        data_vars[v_i].attrs["long_name"] = newname
+
+                    data_vars.pop(v_out)  # TODO: don't even add v in the first place
 
     # Construct the output dataset
     data_vars.update({"lat_rho": lat_rho,
